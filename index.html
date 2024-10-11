@@ -3,7 +3,7 @@
   <head>
     <title>Проект "Комменты"</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="./styles/styles.css" />
   </head>
 
   <body>
@@ -15,15 +15,14 @@
             <div>12.02.22 12:18</div>
           </div>
           <div class="comment-body">
-            <div class="comment-text">
-              Это будет первый комментарий на этой странице
-            </div>
+            <div class="comment-text">Это будет первый комментарий на этой странице</div>
           </div>
           <div class="comment-footer">
             <div class="likes">
               <span class="likes-counter">3</span>
               <button class="like-button"></button>
             </div>
+            <button class="bin-button"><img src="./img/free-icon-delete-1345925.png" alt="Bin" /></button>
           </div>
         </li>
         <li class="comment">
@@ -32,40 +31,27 @@
             <div>13.02.22 19:22</div>
           </div>
           <div class="comment-body">
-            <div class="comment-text">
-              Мне нравится как оформлена эта страница! ❤
-            </div>
+            <div class="comment-text">Мне нравится как оформлена эта страница! ❤</div>
           </div>
           <div class="comment-footer">
             <div class="likes">
               <span class="likes-counter">75</span>
               <button class="like-button -active-like"></button>
             </div>
+            <button class="bin-button"><img src="./img/free-icon-delete-1345925.png" alt="Bin" /></button>
           </div>
         </li>
       </ul>
       <div class="add-form">
-        <input
-          type="text"
-          class="add-form-name"
-          placeholder="Введите ваше имя"
-        />
-        <textarea
-          type="textarea"
-          class="add-form-text"
-          placeholder="Введите ваш коментарий"
-          rows="4"
-        ></textarea>
+        <input type="text" class="add-form-name" placeholder="Введите ваше имя" />
+        <textarea type="textarea" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
         <div class="add-form-row">
           <button class="add-form-button">Написать</button>
+          <button class="del-form-button">Удалить</button>
         </div>
       </div>
     </div>
   </body>
 
-  <script>
-    "use strict";
-    // Код писать здесь
-    console.log("It works!");
-  </script>
+  <script src="./src/index.js"></script>
 </html>
