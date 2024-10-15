@@ -59,6 +59,16 @@ body {
 
 .comment-text {
   font-size: 32px;
+  // word-break: break-all;
+}
+
+.quote {
+  background-color: lightgray;
+  color: #000;
+  font-size: 16px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  padding: 8px;
 }
 
 .likes {
@@ -117,7 +127,6 @@ body {
   gap: 16px;
 }
 
-
 .add-form {
   padding: 20px;
   margin-top: 48px;
@@ -132,6 +141,7 @@ body {
   font-family: Helvetica;
   border-radius: 8px;
   border: none;
+  white-space: pre-line;
 }
 
 .edit-form-text {

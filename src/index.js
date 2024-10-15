@@ -8,6 +8,7 @@ const comments = [
     likes: 3,
     isLiked: false,
     isEdit: false,
+    quote: '',
   },
   {
     name: 'Варвара Н.',
@@ -16,6 +17,7 @@ const comments = [
     likes: 75,
     isLiked: true,
     isEdit: false,
+    quote: '',
   },
 ];
 
@@ -36,11 +38,11 @@ const addButtonEl = document.querySelector('.add-form-button');
 addButtonEl.disabled = true;
 let userName = '';
 let userText = '';
+let quoteText = '';
 
 const handleLike = (e) => {
   //два одинаковых способа достать индекс
   const index = e.target.getAttribute('data-index');
-  console.log(index);
   // const index = likeBtnElelement.dataset.index;
   comments[index].isLiked ? comments[index].likes-- : comments[index].likes++;
   comments[index].isLiked = !comments[index].isLiked;
@@ -51,7 +53,6 @@ const handleDelete = (e) => {
   // console.dir(e.target);
   const index = e.target.getAttribute('data-index');
   comments.splice(index, 1);
-  console.log(index);
   renderComments();
 };
 
@@ -67,38 +68,68 @@ const handleEdit = (e) => {
 const handleSave = (e) => {
   const index = e.target.getAttribute('data-index');
   const currentComment = document.querySelectorAll('.comment')[index];
-  comments[index].text = currentComment.querySelector('.edit-form-text').value;
+  comments[index].text = currentComment
+    .querySelector('.edit-form-text')
+    .value.replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
   comments[index].isEdit = false;
 
   renderComments();
 };
 
+const handleQuote = (e) => {
+  const index = e.target.closest('.comment').getAttribute('data-index');
+  textEl.value = `>QUOTE_BEGIN ${comments[index].name}\n>${comments[index].text} QUOTE_END\n`;
+  textEl.focus();
+};
+
 const initEventListeners = () => {
   const likeBtnElements = document.querySelectorAll('.like-button');
   for (const likeBtnElement of likeBtnElements) {
-    likeBtnElement.addEventListener('click', (e) => handleLike(e));
+    likeBtnElement.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleLike(e);
+    });
   }
 
   const delBtnElements = document.querySelectorAll('.bin-button');
   for (const delBtnElement of delBtnElements) {
-    delBtnElement.addEventListener('click', (e) => handleDelete(e));
+    delBtnElement.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleDelete(e);
+    });
   }
 
   const editBtnElements = document.querySelectorAll('.edit-button');
   for (const editBtnElement of editBtnElements) {
-    editBtnElement.addEventListener('click', (e) => handleEdit(e));
+    editBtnElement.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleEdit(e);
+    });
   }
 
   const saveBtnElements = document.querySelectorAll('.save-button');
   for (const saveBtnElement of saveBtnElements) {
-    saveBtnElement.addEventListener('click', (e) => handleSave(e));
+    saveBtnElement.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleSave(e);
+    });
+  }
+
+  const commentElArr = document.querySelectorAll('.comment');
+  for (const commentEl of commentElArr) {
+    commentEl.addEventListener('click', (e) => {
+      handleQuote(e);
+    });
   }
 };
 
 const renderComments = () => {
   commentsEl.innerHTML = comments
     .map((comment, index) => {
-      return `<li class="comment">
+      return `<li class="comment" data-index="${index}" >
           <div class="comment-header">
             <div>${comment.name}</div>
             <div>${comment.date}</div>
@@ -108,7 +139,10 @@ const renderComments = () => {
               comment.isEdit
                 ? `<textarea type="textarea" class="edit-form-text"
                     rows="2">${comment.text}</textarea>`
-                : `<div class="comment-text">${comment.text}</div>`
+                : `<div class="comment-text">
+                    ${comment.quote && `<div class='quote'>${comment.quote}</div>`} 
+                    ${comment.text}
+                  </div>`
             }
             
           </div>
@@ -149,7 +183,6 @@ const renderComments = () => {
   userName = '';
   userText = '';
   addButtonEl.disabled = true;
-  // delButtonEl.disabled = false;
 
   initEventListeners();
 };
@@ -157,7 +190,12 @@ const renderComments = () => {
 renderComments();
 
 const validateField = (element) => {
-  let content = element.value.trim();
+  let content = element.value
+    .trim()
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
   if (content === '') {
     element.classList.add('error');
   } else {
@@ -168,6 +206,7 @@ const validateField = (element) => {
 
 inputEl.addEventListener('input', () => {
   userName = validateField(inputEl);
+  userName = userName.length > 32 ? `${userName.slice(0, 32)}...` : userName;
   addButtonEl.disabled = userName && userText ? false : true;
 });
 
@@ -177,13 +216,20 @@ textEl.addEventListener('input', () => {
 });
 
 const addComment = () => {
+  quoteText = userText
+    .slice(0, userText.indexOf('QUOTE_END'))
+    .slice(userText.indexOf('QUOTE_BEGIN') + 'QUOTE_BEGIN'.length, userText.length);
+
+  userText = userText.slice(userText.indexOf('QUOTE_END') + 'QUOTE_END'.length, userText.length);
+
   const newComment = {
-    name: inputEl.value,
-    text: textEl.value,
+    name: userName,
+    text: userText,
     date: getMsgDateTime(),
     likes: 0,
     isLiked: false,
     isEdit: false,
+    quote: quoteText,
   };
   comments.push(newComment);
   renderComments();
@@ -194,5 +240,9 @@ addButtonEl.addEventListener('click', () => {
 });
 
 document.addEventListener('keyup', (e) => {
-  if (e.key === 'Enter' && !addButtonEl.disabled) addComment();
+  if (e.key !== 'Enter') return;
+
+  if ((document.activeElement === textEl || document.activeElement === inputEl) && !addButtonEl.disabled) addComment();
+
+  // if (document.activeElement.classList.contains('.edit-form-text')) handleSave();
 });
